@@ -19,6 +19,16 @@ public class Pipe : MonoBehaviour {
         if(other.tag == "Player")
         {
             Debug.Log("BIRDIE DOWN I REPEAT BIRDIE DOWN");
+            other.gameObject.GetComponent<Player>().EndGame();
+            Camera.main.GetComponent<CameraMovement>().Halt();
+        }
+    }
+
+    void OnColliderEnter2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            Debug.Log("BIRDIE DOWN I REPEAT BIRDIE DOWN");
         }
     }
 }
