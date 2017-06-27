@@ -5,8 +5,9 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour {
 
     public float SpeedAmount = 5f;
+    public Transform SpawnPoint;
     private Vector3 Speed;
-    private bool GameEnd = false;
+    private bool GameEnd = true;
 
     // Use this for initialization
     void Start () {
@@ -22,6 +23,12 @@ public class CameraMovement : MonoBehaviour {
         }
 
 
+    }
+
+    public void Move()
+    {
+        gameObject.transform.position = SpawnPoint.position;
+        GameEnd = false;
     }
 
     public void Halt()

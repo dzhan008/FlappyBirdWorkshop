@@ -15,10 +15,10 @@ public class PointWall : MonoBehaviour {
 	}
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("FIX ME I DON'T WORK SOMETIMES");
         if (other.tag == "Player")
         {
-            other.gameObject.GetComponent<Player>().IncrementScore(1);
+            other.gameObject.GetComponent<ScoreManager>().IncrementScore(1);
+            other.gameObject.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Audio/Point"));
         }
     }
 }

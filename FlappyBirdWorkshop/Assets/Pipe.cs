@@ -18,9 +18,9 @@ public class Pipe : MonoBehaviour {
     {
         if(other.tag == "Player")
         {
-            Debug.Log("BIRDIE DOWN I REPEAT BIRDIE DOWN");
-            other.gameObject.GetComponent<Player>().EndGame();
-            Camera.main.GetComponent<CameraMovement>().Halt();
+            GameObject.Find("GameManager").GetComponent<GameManager>().EndGame();
+            other.GetComponent<AudioSource>().PlayOneShot((AudioClip)Resources.Load("Audio/Smack Chicken"));
+
         }
     }
 

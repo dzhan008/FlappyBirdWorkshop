@@ -6,45 +6,50 @@ public class Player : MonoBehaviour {
 
 
     public float ForceAmount = 3f;
+    public Transform SpawnPoint;
     private Vector2 Force;
-    private int score = 0;
-    private bool alive = true;
+    private bool Alive = false;
+    private AudioClip flap;
+
+    public Sprite AliveSprite;
+    public Sprite DeadSprite;
 
 	// Use this for initialization
 	void Start ()
     {
         Force = new Vector2(0, ForceAmount);
+        flap = (AudioClip)Resources.Load("Audio/Flap");
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 
-        if(alive)
+        if(Alive)
         {
-            if (Input.GetButtonDown("Jump"))
+            if (Input.GetButtonDown("Jump") || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
             {
                 this.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
                 this.gameObject.GetComponent<Rigidbody2D>().AddForce(Force, ForceMode2D.Impulse);
-            }
-            else if (Input.GetButtonDown("Down"))
-            {
-                this.gameObject.transform.Translate(0, -0.5f, 0);
+                this.gameObject.GetComponent<AudioSource>().PlayOneShot(flap);
             }
         }
 
 		
 	}
 
-    public void IncrementScore(int amount)
+    public void Kill()
     {
-        score += amount;
-        Debug.Log(score);
+        Alive = false;
+        this.GetComponent<SpriteRenderer>().sprite = DeadSprite;
     }
 
-    public void EndGame()
+    public void Reset()
     {
-        alive = false;
-        //End game, open some coroutine to pop up the menu
+        Alive = true;
+        gameObject.transform.position = SpawnPoint.position;
+        GetComponent<Rigidbody2D>().velocity = new Vector2(0,0);
+        this.GetComponent<SpriteRenderer>().sprite = AliveSprite;
     }
+
 }
