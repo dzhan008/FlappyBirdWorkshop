@@ -48,6 +48,7 @@ public class Player : MonoBehaviour {
     {
         Alive = true;
         gameObject.transform.position = SpawnPoint.position;
+        gameObject.transform.rotation = Quaternion.identity;
         GetComponent<Rigidbody2D>().velocity = new Vector2(0,0);
         this.GetComponent<SpriteRenderer>().sprite = AliveSprite;
     }

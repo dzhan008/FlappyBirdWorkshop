@@ -19,6 +19,7 @@ public class CameraMovement : MonoBehaviour {
 	void Update () {
         if(!GameEnd)
         {
+            Speed.x = SpeedAmount;
             this.transform.Translate(Speed);
         }
 

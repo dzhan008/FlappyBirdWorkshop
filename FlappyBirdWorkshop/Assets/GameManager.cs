@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -13,21 +14,35 @@ public class GameManager : MonoBehaviour {
     public GameObject Score;
     public GameObject ScoreScreen;
     public GameObject CreditsScreen;
+    public GameObject FastModeButton;
+    public Text FastModeText;
+    private Color FastModeTextColor;
 
     public GameObject Background;
     public GameObject BackgroundContainer;
     public GameObject CurrentEdge;
 
+    private CameraMovement GameCamera;
+    private bool fastMode;
+
+    //Pipe and Background Spawn Time Settings
     public float PipeSpawnTime = 1f;
     public float BackgroundSpawnTime = 5f;
     public int BackgroundInitialSpawnAmount = 5;
+
+    //Camera Speed Settings
+    public float initialSpeed = 0.08f;
+    private float fastModeSpeed = 2f;
 
     private bool GameOn = false;
 	// Use this for initialization
 	void Start () {
         //Spawn the first background
         SpawnBackground(1);
-	}
+        GameCamera = Camera.main.GetComponent<CameraMovement>();
+        FastModeTextColor = FastModeText.color;
+        FastModeText.color = Color.clear;
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -39,10 +54,19 @@ public class GameManager : MonoBehaviour {
     {
         Score.SetActive(true);
         MainMenu.SetActive(false);
+        FastModeButton.SetActive(false);
         GameOn = true;
-
-        Camera.main.GetComponent<CameraMovement>().Move();
-        StartCoroutine(SpawnPipes(PipeSpawnTime));
+        if(fastMode)
+        {
+            GameCamera.SpeedAmount = fastModeSpeed;
+            Player.GetComponent<AudioSource>().Play();
+        }
+        else
+        {
+            GameCamera.SpeedAmount = initialSpeed;
+        }
+        GameCamera.Move();
+        StartCoroutine(SpawnPipes());
         SpawnBackground(BackgroundInitialSpawnAmount);
         StartCoroutine(SpawnBackgrounds(BackgroundSpawnTime));
         Player.GetComponent<Player>().Reset();
@@ -54,7 +78,8 @@ public class GameManager : MonoBehaviour {
     public void EndGame()
     {
         Player.GetComponent<Player>().Kill();
-        Camera.main.GetComponent<CameraMovement>().Halt();
+        Player.GetComponent<AudioSource>().Stop();
+        GameCamera.Halt();
         StopAllCoroutines();
         StartCoroutine(EndGameSequence(1f));
     }
@@ -97,18 +122,19 @@ public class GameManager : MonoBehaviour {
     {
         yield return new WaitForSeconds(sec);
         ScoreScreen.SetActive(true);
+        FastModeButton.SetActive(true);
         Score.SetActive(false);
         Player.GetComponent<ScoreManager>().UpdateFinalScore();
     }
 
 
-    IEnumerator SpawnPipes(float time)
+    IEnumerator SpawnPipes()
     {
         while(GameOn)
         {
-            yield return new WaitForSeconds(time);
             GameObject new_pipes = GameObject.Instantiate(PipeSet, SpawnPoint.position, PipeSet.transform.rotation);
             new_pipes.transform.parent = PipeContainer.transform;
+            yield return new WaitForSeconds(PipeSpawnTime);
         }
     }
 
@@ -136,5 +162,20 @@ public class GameManager : MonoBehaviour {
             CurrentEdge = new_background.GetComponent<Background>().Edge;
         }
 
+    }
+
+    public void ToggleFastMode()
+    {
+        fastMode = fastMode ? false : true; //If true, make false. If not true (false), make true
+        if(!fastMode)
+        {
+            FastModeButton.GetComponent<Image>().color = Color.clear;
+            FastModeText.color = Color.clear;
+        }
+        else
+        {
+            FastModeButton.GetComponent<Image>().color = Color.white;
+            FastModeText.color = FastModeTextColor;
+        }
     }
 }

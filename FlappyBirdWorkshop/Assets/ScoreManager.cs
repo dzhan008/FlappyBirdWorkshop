@@ -29,6 +29,10 @@ public class ScoreManager : MonoBehaviour {
     public void IncrementScore(int amount)
     {
         Score += amount;
+        if(Score % 15 == 0)
+        {
+            Camera.main.GetComponent<CameraMovement>().SpeedAmount += 0.02f;
+        }
         ScoreText.text = Score.ToString();
     }
 
