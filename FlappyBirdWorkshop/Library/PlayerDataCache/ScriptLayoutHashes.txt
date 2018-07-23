@@ -1,6 +1,6 @@
 Android
 PlayerPath?
-D:/Documents/Unity Build/PhoenixFly 1.2.apk
+D:/Documents/Unity Build/PhoenixFly 1.3.apk
 SceneListBegin?
 Assets/Main.unity
 SceneListEnd?
