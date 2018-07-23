@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +17,7 @@ public class GameManager : MonoBehaviour {
     public GameObject Score;
     public GameObject ScoreScreen;
     public GameObject CreditsScreen;
+    public GameObject InstructionScreen;
     public GameObject FastModeButton;
     public Text FastModeText;
     private Color FastModeTextColor;
@@ -23,7 +27,9 @@ public class GameManager : MonoBehaviour {
     public GameObject CurrentEdge;
 
     private CameraMovement GameCamera;
-    private bool fastMode;
+    private bool FastMode;
+
+    private string GameDataPath;
 
     //Pipe and Background Spawn Time Settings
     public float PipeSpawnTime = 1f;
@@ -38,6 +44,8 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         //Spawn the first background
+        GameDataPath = Application.persistentDataPath + "/gameInfo.dat";
+        Load();
         SpawnBackground(1);
         GameCamera = Camera.main.GetComponent<CameraMovement>();
         FastModeTextColor = FastModeText.color;
@@ -56,7 +64,7 @@ public class GameManager : MonoBehaviour {
         MainMenu.SetActive(false);
         FastModeButton.SetActive(false);
         GameOn = true;
-        if(fastMode)
+        if(FastMode)
         {
             GameCamera.SpeedAmount = fastModeSpeed;
             Player.GetComponent<AudioSource>().Play();
@@ -74,14 +82,16 @@ public class GameManager : MonoBehaviour {
         Player.GetComponent<ScoreManager>().Reset();
     }
 
-
     public void EndGame()
     {
-        Player.GetComponent<Player>().Kill();
-        Player.GetComponent<AudioSource>().Stop();
-        GameCamera.Halt();
-        StopAllCoroutines();
-        StartCoroutine(EndGameSequence(1f));
+        if(Player.GetComponent<Player>().Alive)
+        {
+            Player.GetComponent<Player>().Kill();
+            Player.GetComponent<AudioSource>().Stop();
+            GameCamera.Halt();
+            StopAllCoroutines();
+            StartCoroutine(EndGameSequence(1f));
+        }
     }
 
     public void OnCredits()
@@ -90,9 +100,16 @@ public class GameManager : MonoBehaviour {
         MainMenu.SetActive(false);
     }
 
+    public void OnInstructions()
+    {
+        InstructionScreen.SetActive(true);
+        MainMenu.SetActive(false);
+    }
+
     public void OnBack()
     {
         CreditsScreen.SetActive(false);
+        InstructionScreen.SetActive(false);
         MainMenu.SetActive(true);
     }
 
@@ -125,6 +142,7 @@ public class GameManager : MonoBehaviour {
         FastModeButton.SetActive(true);
         Score.SetActive(false);
         Player.GetComponent<ScoreManager>().UpdateFinalScore();
+        Save();
     }
 
 
@@ -166,8 +184,8 @@ public class GameManager : MonoBehaviour {
 
     public void ToggleFastMode()
     {
-        fastMode = fastMode ? false : true; //If true, make false. If not true (false), make true
-        if(!fastMode)
+        FastMode = FastMode ? false : true; //If true, make false. If not true (false), make true
+        if(!FastMode)
         {
             FastModeButton.GetComponent<Image>().color = Color.clear;
             FastModeText.color = Color.clear;
@@ -178,4 +196,36 @@ public class GameManager : MonoBehaviour {
             FastModeText.color = FastModeTextColor;
         }
     }
+
+    public void Save()
+    {
+        //Created to open up a data file containing game data
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(GameDataPath);
+
+        //Construct the object for game data
+        GameData data = new GameData();
+        data.highscore = Player.GetComponent<ScoreManager>().HighScore;
+        bf.Serialize(file, data);
+        file.Close();
+    }
+
+    public void Load()
+    {
+        if (File.Exists(GameDataPath))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(GameDataPath, FileMode.Open);
+
+            GameData data = (GameData)bf.Deserialize(file);
+            file.Close();
+            Player.GetComponent<ScoreManager>().HighScore = data.highscore;
+        }
+    }
+}
+
+[Serializable]
+class GameData
+{
+    public int highscore;
 }

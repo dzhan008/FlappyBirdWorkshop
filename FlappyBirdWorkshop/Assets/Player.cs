@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
     public float ForceAmount = 3f;
     public Transform SpawnPoint;
     private Vector2 Force;
-    private bool Alive = false;
+    public bool Alive = false;
     private AudioClip flap;
 
     public Sprite AliveSprite;
